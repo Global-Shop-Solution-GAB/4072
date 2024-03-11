@@ -1,0 +1,79 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+'Quote 5996-0
+'Coded by AGM
+'11/24/2014
+'
+'Change Script 3 of Quote Header to "Open CRM"
+'Open CRM will launch CRM Specfic to the company that is on the Quote Header
+
+V.Local.sCRMData.Declare(String)
+V.Local.sParams.Declare(String)
+V.Local.sParamVals.Declare(String)
+V.Local.iProsp.Declare(String)
+V.Local.iProcessRet.Declare(String)
+V.Local.sElements.Declare(String)
+V.Local.i.Declare(Long)
+
+F.Intrinsic.Control.SelectCase(V.Caller.Hook)
+	F.Intrinsic.Control.Case(10710)
+		'Lock Sctipt 3 button and lable it
+		V.Passed.000203.Set("Open CRM")
+		F.Intrinsic.UI.ChangeCallerProperty(V.Passed.000203,"LOCK",1)
+		
+	F.Intrinsic.Control.Case(10721)
+		F.Intrinsic.UI.ChangeCallerProperty(V.Passed.000203,"LOCK",0)
+
+	F.Intrinsic.Control.Case(10980)
+		F.Intrinsic.Control.If(V.Passed.000003,=,"")
+			F.Intrinsic.UI.Msgbox("Please select a quote number")
+			F.Intrinsic.Control.ExitSub
+		F.Intrinsic.Control.Else
+		'Invoke CRM function and pass the parameters
+
+			F.Intrinsic.Control.If(V.Passed.PROSP-FLAG,=,"C")
+				V.Local.iProsp.Set("15")
+			F.Intrinsic.Control.Else
+				V.Local.iProsp.Set("18")
+			F.Intrinsic.Control.EndIf
+
+			'Elements and values needed to lanch the CRM as specified
+			F.Intrinsic.String.Build("*MODE::9*!*COMPANY-NUMBER::{0}*!*COMPANY-TYPE::{1}",V.Passed.000006,V.Local.iProsp,V.Local.sElements)
+			Function.Global.CRM.Invoke(V.Local.sElements,V.Local.iProcessRet)
+
+		F.Intrinsic.Control.EndIf
+			
+F.Intrinsic.Control.EndSelect
+
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4072_LaunchCRMfromQuoteHeader.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Main.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_4072_LaunchCRMfromQuoteHead$}$AGM$}$11/24/2014
+${$1$}$$}$$}$2$}$10980$}$QTS0200A-SCRIPT-3-HOOK$}$5/19/2016 1:12:33 PM$}$(Program: QTE200; Screen: QTS0200A)
+
+${$1$}$$}$$}$1$}$10721$}$QTS0200A-POST-SCREEN-LOAD-HOOK$}$5/19/2016 1:12:16 PM$}$(Program: QTE200; Screen: QTS0200A)
+
+${$1$}$$}$$}$0$}$10710$}$QTS0200A-POPULATE-HOOK$}$5/19/2016 1:11:54 PM$}$(Program: QTE200; Screen: QTS0200A)
+
+Program.Sub.Comments.End
+
